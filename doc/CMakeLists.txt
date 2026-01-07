@@ -11,11 +11,15 @@ project(CRS LANGUAGES CXX)
 add_executable(CRS
     #math.cpp                              # 模块实现单元
     main.cpp
+
+
 )
 
 set(MODULE_INTERFACE_FILES
     #${MODULE_LIB_DIR1}/utils.cppm         #添加模块库的模块接口单元
-    #math.cppm                             # 模块接口单元
+    #math.cppm
+    psql.cppm# 模块接口单元
+     Registrar.cppm
 )
 
 source_group("Module Interfaces" FILES ${MODULE_INTERFACE_FILES})
@@ -27,7 +31,18 @@ target_sources(CRS  PRIVATE FILE_SET cxx_modules TYPE CXX_MODULES
 )
 target_compile_features(CRS PRIVATE cxx_std_23)
 
+#添加postgresql的路径库
+target_include_directories(CRS
+    PRIVATE
+        /usr/include/posgresql
 
+)
+target_link_libraries(CRS
+    PRIVATE
+        pq
+        pthread
+
+)
 
 
 
