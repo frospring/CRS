@@ -1,5 +1,5 @@
 module;//全局混用头文件和模块
-//module:提供c++程序和数据库的接口,提供插入，查询，删除的方式
+//module:提供c++程序和数据库的接口,提供插入，查询，删除的方式,使用sql语句调用对应的函数连接到数据库接口
 //Description:
 /*this files is build by author: tangshengqing2024051604041 at 2026-01-07*/
 //email address:2052448030@qq.com
@@ -16,7 +16,7 @@ using std::print;
 
 //创建接口类
 export class Psql{
-    friend void test();
+    friend void sqlFuncsystem();
 
 public:
     //创建连接，反馈连接
@@ -114,21 +114,45 @@ void Psql::selectTable(const char *input){
 //增加函数接口
 void Psql::insertTable(const char *input){
       PGresult *res=PQexec(conclass,input);//查询获取对象指针
+      if(PQresultStatus(res)==PGRES_COMMAND_OK)
+      {
+          print("---Insert sucessfully {}\n",PQcmdTuples(res));
+      }else{
+          print("---Insert error {}\n",PQresultErrorMessage(res));
+      }
+
 
 }
 
 //删除函数接口
 void Psql::dropTable(const char *input){
+     PGresult *res=PQexec(conclass,input);
+     if(PQresultStatus(res)==PGRES_COMMAND_OK)
+     {
+         print("---delete sucessfully {}\n",PQcmdTuples(res));
+     }else{
+         print("---delete error {}\n",PQresultErrorMessage(res));
+     }
+
 
 }
 
 
-export void test()
+//测试函数
+export void sqlFuncsystem()
 {
 
     Psql &ps=Psql::getControlsql();
+/*
+    ps.insertTable("insert into student (id,name,major,maxcredits) values(101,'张三','computer','88')");
+    ps.insertTable("insert into student (id,name,major,maxcredits) values(102,'李四','math','91')");
+    ps.insertTable("insert into student (id,name,major,maxcredits) values(103,'王五','physics','85')");
+    ps.insertTable("insert into student (id,name,major,maxcredits) values(104,'赵六','chemistry','92')");
+    ps.insertTable("insert into student (id,name,major,maxcredits) values(105,'孙七','biology','89')");
+    //ps.dropTable("delete from student where id = 2 ");
+*/
+    ps.selectTable("select * from student");
 
-    ps.selectTable("select * from student;");
 
 }
 
