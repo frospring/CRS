@@ -6,17 +6,45 @@ module;//全局混用头文件和模块
 #include<libpq-fe.h>//导入postgresql的头文件
 export module registrar:psql;
 
+// ---------student --datatable: major1: C_programs , major2: Data_Structure  major3:Advanced_Math 以便于用来对数据库的列进行操作
+
+
 
 import std;
 
 
 using std::print;
+using std::string;
+
+
+//常用数据库sql语句
+const string showStudentTableStr="select * from Student";
+const string showTeacherTableStr="select * from Teacher";
+const string showStudentRollCourseTableStr="select * from StudentRollinCourse";
+const string showCourseHaveStudentTableStr="select * from CourseHaveStudent";
+
+//正序查询学生表
+const string showStudentTableStrOrdeBy="select * from Student Order BY id ASC";
+//要规范化：major1=。。。mahor2=。。特定的，输入专业自动匹配数据库当中的列，然后删除，插入时也是，要列对应特定的专业
+
+const string updateStudentTableStr="update  Student SET ";
 
 
 
+//为不同用户设置不同的权限
+export typedef enum User{
+    Teacher,
+    Student,
+
+};
+
+
+
+
+//--------------------------------------------------------------接口类声明----------------------------------------------
 //创建接口类
 export class Psql{
-    friend void sqlFuncsystem();
+    friend void sqlFuncsystem(User who);
 
 public:
     //创建连接，反馈连接
@@ -24,11 +52,12 @@ public:
 
     static Psql& getControlsql();//获取静态管理对象
 
-    void selectTable(const char *input);
+    void selectTable(const char *input);//查的接口
 
-    void insertTable(const char *input);
+    void insertTable(const char *input);//插入接口
 
-    void dropTable(const char *input);
+    void dropTable(const char *input);//删除接口
+
 
 private:
     const char *constr;//连接到的端口
@@ -37,8 +66,27 @@ private:
 };
 
 
+
+//--------------------------------------------------------------工具函数声明----------------------------------------------
+string sqlselectSqlConnStr(const string &sqlcon,const string &id);//拼接查询sql语句返回where限制的sql语句，更精确的查找或者删除，
+string sqlupdatetSqlConnStr(const string &sqlcoq,const string &id,bool roll);//拼接更新sql语句SET限制的sql语句,bool用来判断是选还是退（取消选则的课）
+
+//设置登陆对象的函数方法，设置权限不同
+void TeacherControl(Psql &ps);//老师登陆
+void StudentControl(Psql &ps);//学生登陆
+
+
+
+//选和退选课程的操作，传输课程名字，映射到对应的列上面去，roll=true为选课，roll=false为退课
+void StudentWithCourse(Psql &ps,const string& Notin,const string& id,bool roll);
+
+
+
+
+//------------------------------------------------------------------数据库和程序的命令接口实现
+
 //初始化连接
-Psql::Psql():constr("host=localhost dbname=postgres user=postgres password=root port=5432"),conclass(nullptr){
+Psql::Psql():constr("host=localhost dbname=postgres user=postgres password= port=5432"),conclass(nullptr){
     conclass=PQconnectdb(constr);//连接到数据库
 
     //查看是连接成功，否则终止程序
@@ -116,9 +164,9 @@ void Psql::insertTable(const char *input){
       PGresult *res=PQexec(conclass,input);//查询获取对象指针
       if(PQresultStatus(res)==PGRES_COMMAND_OK)
       {
-          print("---Insert sucessfully {}\n",PQcmdTuples(res));
+          print("---sucessfully {}\n",PQcmdTuples(res));
       }else{
-          print("---Insert error {}\n",PQresultErrorMessage(res));
+          print("---error {}\n",PQresultErrorMessage(res));
       }
 
 
@@ -138,23 +186,183 @@ void Psql::dropTable(const char *input){
 }
 
 
-//测试函数
-export void sqlFuncsystem()
-{
 
-    Psql &ps=Psql::getControlsql();
-/*
-    ps.insertTable("insert into student (id,name,major,maxcredits) values(101,'张三','computer','88')");
-    ps.insertTable("insert into student (id,name,major,maxcredits) values(102,'李四','math','91')");
-    ps.insertTable("insert into student (id,name,major,maxcredits) values(103,'王五','physics','85')");
-    ps.insertTable("insert into student (id,name,major,maxcredits) values(104,'赵六','chemistry','92')");
-    ps.insertTable("insert into student (id,name,major,maxcredits) values(105,'孙七','biology','89')");
-    //ps.dropTable("delete from student where id = 2 ");
-*/
-    ps.selectTable("select * from student");
+
+//--------------------------------------------------------------------用户操作函数实现
+
+
+string sqlselectSqlConnStr(const string &sqlcon,const string &id){
+            string Add = sqlcon+" where id ="+id;
+            return Add;
+}//拼接常用sql语句返回where限制的sql语句，更精确的查找或者删除，
+
+
+
+string sqlupdatetSqlConnStr(const string &sqlcon,const string& Notin,const string &id,bool roll){
+
+    string Add;
+    if(Notin=="C_programs")
+    {
+        if(roll=false)
+        {
+             Add = sqlcon+" major1 = null "+" where id ="+id;//对应c课程退选
+        }else{
+            Add = sqlcon+" major1 = 'C_programs' "+" where id ="+id;//对应c课程选
+        }
+
+    }else if(Notin=="Data_Structure")
+    {
+        if(roll=false)
+        {
+            Add = sqlcon+" major2 = null "+" where id ="+id;//对应数据库课程退选
+        }else{
+            Add = sqlcon+" major2 = 'Data_Structure' "+" where id ="+id;//对应数据库课程选
+        }
+
+    }else if(Notin=="Advanced_Math"){
+        if(roll=false)
+        {
+             Add = sqlcon+" major3 = null "+" where id ="+id;//对应数学课程退选
+        }else{
+             Add = sqlcon+" major3 = 'Advanced_Math' "+" where id ="+id;//对应数学课程选
+        }
+
+    }
+    return Add;
+
+}//拼接更新sql语句SET限制的sql语句
+
+
+//退选课程的操作，传输课程名字，映射到对应的列上面去
+
+
+//选课程的操作，传输课程名字，映射到对应的列上面去
+void StudentWithCourse(Psql &ps,const string& Notin,const string& id,bool roll){
+    const string &notrollcourse=sqlupdatetSqlConnStr(updateStudentTableStr.c_str(),Notin,id,roll);//获取到特定的列
+    if(notrollcourse=="")
+    {
+        print("输入错误，请检测课程是否存在或拼写错误,注意拼写的下划线，然后重试\n");
+    }else{
+        ps.insertTable(notrollcourse.c_str());
+    }
 
 
 }
 
 
 
+
+
+//教师管理数据库--有删除操作
+void TeacherControl(Psql &ps){
+
+}
+
+//学生操作数据库
+void StudentControl(Psql &ps){
+
+    //test
+     ps.selectTable(showStudentTableStrOrdeBy.c_str());
+
+
+    //用于控制学生的功能程序循环
+    bool run=true;
+    while(run)
+    {
+        //清除输入缓冲区内容
+
+        print("===select your function\n");
+        print("1: 展示当前已选课表\n");
+        print("2: 退选课表\n");
+        print("3: 选课\n");
+        print("4: 退出功能\n");
+
+        char c;
+        std::cin>>c;
+
+
+
+        switch(c)
+        {
+            std::cin.ignore(std::numeric_limits<std::streamsize>::max(),'\n');
+            case '1':{
+            //传入id,查看学生id所对应的所选课程基本信息
+                string sid="101";
+                string sql= sqlselectSqlConnStr(showStudentTableStr,sid);
+                ps.selectTable(sql.c_str());
+                break;
+                }
+            case '2':{
+
+            //传入tid,输入退选课程，在退选函数中进行操作
+                string tid="101";
+                print("输入你想退选的课程\n");
+                string notroll;
+                std::cin>>notroll;
+                StudentWithCourse(ps,notroll,tid,false);//退选函数
+
+                break;
+                }
+            case '3':{
+                string tid="101";
+                print("输入你想选的课程\n");
+                string roll;
+                std::cin>>roll;
+                StudentWithCourse(ps,roll,tid,true);//退选函数
+                }
+                break;
+            case '4':
+                run=false;
+                break;
+            defalut:
+                std::cin.ignore(std::numeric_limits<std::streamsize>::max(),'\n');
+                break;
+
+
+
+        }
+
+
+
+
+
+    }
+
+
+    ps.selectTable(showStudentTableStr.c_str());
+
+
+}
+
+
+//测试函数
+export void sqlFuncsystem(User who)
+{
+    Psql &ps=Psql::getControlsql();
+
+
+
+    if(who==Student)
+    {
+
+         StudentControl(ps);
+
+    }else if(who==Teacher)
+    {
+        //教师登陆
+
+    }
+
+
+/*
+    ps.insertTable("insert into student (id,name,major1,maxcredits) values(101,'张三','C_programs','88')");
+    ps.insertTable("insert into student (id,name,major2,maxcredits) values(102,'李四','Data_Structure','91')");
+    ps.insertTable("insert into student (id,name,major3,maxcredits) values(103,'王五','Advanced_Math','85')");
+    ps.insertTable("insert into student (id,name,major1,maxcredits) values(104,'赵六','C_programs','92')");
+    ps.insertTable("insert into student (id,name,major2,maxcredits) values(105,'孙七','Data_Structure','89')");
+    //ps.dropTable("delete from student where id = 2 ");
+*/
+
+
+
+}

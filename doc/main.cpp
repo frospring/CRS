@@ -4,7 +4,7 @@ import registrar;
 import std;
 int main()
 {
-    sqlFuncsystem();
+    sqlFuncsystem(Student);
 
     return 0;
 }
