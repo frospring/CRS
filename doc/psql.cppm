@@ -32,8 +32,9 @@ const string showCourseTableStr="select * from course ";
 
 //-------------------------------------学生选课课程关系sql
 
-const string showStudentRollCourseTableStr="select * from studentcourse ";//查看关系表
-const string updateStudentTableStr="update  studentcourse SET ";
+const string showStudentRollCourseTableStr="select name from course where id in (select course_id from studentcourse where student_id = ";//查看关系表
+const string deleteStudentControlCourseTableStr="delete from studentcourse where ";
+const string insertStudentControlCourseTableStr="insert into studentcourse (course_id,student_id) values ";
 
 
 
@@ -75,9 +76,8 @@ public:
 
     void selectTable(const char *input);//查的接口
 
-    void insertTable(const char *input);//插入接口
+    void controlTable(const char *input);//插入接口
 
-    void dropTable(const char *input);//删除接口
 
 
 private:
@@ -90,7 +90,7 @@ private:
 
 //--------------------------------------------------------------工具函数声明----------------------------------------------
 string sqlselectSqlConnStr(const string &sqlcon,const string &id);//拼接查询sql语句返回where限制的sql语句，更精确的查找或者删除，
-string sqlupdatetSqlConnStr(const string &sqlcoq,const string &id,bool roll);//拼接更新sql语句SET限制的sql语句,bool用来判断是选还是退（取消选则的课）
+string sqlControlStudentCourseStr(const string &id,bool roll);//拼接更新sql语句SET限制的sql语句,bool用来判断是选还是退（取消选则的课）
 
 //设置登陆对象的函数方法，设置权限不同
 void TeacherControl(Psql &ps);//老师登陆
@@ -181,7 +181,7 @@ void Psql::selectTable(const char *input){
 }
 
 //增加函数接口
-void Psql::insertTable(const char *input){
+void Psql::controlTable(const char *input){
       PGresult *res=PQexec(conclass,input);//查询获取对象指针
       if(PQresultStatus(res)==PGRES_COMMAND_OK)
       {
@@ -193,59 +193,44 @@ void Psql::insertTable(const char *input){
 
 }
 
-//删除函数接口
-void Psql::dropTable(const char *input){
-     PGresult *res=PQexec(conclass,input);
-     if(PQresultStatus(res)==PGRES_COMMAND_OK)
-     {
-         print("---delete sucessfully {}\n",PQcmdTuples(res));
-     }else{
-         print("---delete error {}\n",PQresultErrorMessage(res));
-     }
-
-
-}
-
-
-
 
 //--------------------------------------------------------------------用户操作函数实现
 
 
 string sqlselectSqlConnStr(const string &sqlcon,const string &id){
-            string Add = sqlcon+" where id ="+id;
+            string Add = sqlcon+id+")";
             return Add;
 }//拼接常用sql语句返回where限制的sql语句，更精确的查找或者删除，
 
 
 
-string sqlupdatetSqlConnStr(const string &sqlcon,const string& Notin,const string &id,bool roll){
-
+string sqlControlStudentCourseStr(const string& Notin,const string &id,bool roll){
+//1———C——programs,   2----Data_Structure , 3-----Advanced_Math的数据id映射关系操作studentcourse
     string Add;
     if(Notin=="C_programs")
     {
-        if(roll==false)
+        if(roll==false)//false为退选，true为选课
         {
-             Add = sqlcon+" major1 = null "+" where id ="+id;//对应c课程退选
+             Add = deleteStudentControlCourseTableStr+ " course_id = 1 AND student_id = "+id;//更新删除，两个主键确定一行，然后把这行都设置为null
         }else{
-            Add = sqlcon+" major1 = 'C_programs' "+" where id ="+id;//对应c课程选
+            Add = insertStudentControlCourseTableStr+"(1,"+id+")";
         }
 
     }else if(Notin=="Data_Structure")
     {
         if(roll==false)
         {
-            Add = sqlcon+" major2 = null "+" where id ="+id;//对应数据库课程退选
+            Add = deleteStudentControlCourseTableStr+ " course_id = 2 AND student_id = "+id;//对应数据库课程退选
         }else{
-            Add = sqlcon+" major2 = 'Data_Structure' "+" where id ="+id;//对应数据库课程选
+            Add = insertStudentControlCourseTableStr+"(2,"+id+")";//对应数据库课程选
         }
 
     }else if(Notin=="Advanced_Math"){
         if(roll==false)
         {
-             Add = sqlcon+" major3 = null "+" where id ="+id;//对应数学课程退选
+             Add = deleteStudentControlCourseTableStr+ " course_id = 3 AND student_id = "+id;//对应数学课程退选
         }else{
-             Add = sqlcon+" major3 = 'Advanced_Math' "+" where id ="+id;//对应数学课程选
+             Add = insertStudentControlCourseTableStr+"(3,"+id+")";//对应数学课程选
         }
 
     }
@@ -259,12 +244,12 @@ string sqlupdatetSqlConnStr(const string &sqlcon,const string& Notin,const strin
 
 //选课程的操作，传输课程名字，映射到对应的列上面去
 void StudentWithCourse(Psql &ps,const string& Notin,const string& id,bool roll){
-    const string &notrollcourse=sqlupdatetSqlConnStr(updateStudentTableStr.c_str(),Notin,id,roll);//获取到特定的列
-    if(notrollcourse=="")
+    const string &controlcourse=sqlControlStudentCourseStr(Notin,id,roll);//获取到特定的列
+    if(controlcourse=="")
     {
         print("输入错误，请检测课程是否存在或拼写错误,注意拼写的下划线，然后重试\n");
     }else{
-        ps.insertTable(notrollcourse.c_str());
+        ps.controlTable(controlcourse.c_str());
     }
 
 
@@ -309,7 +294,7 @@ void StudentControl(Psql &ps){
             case '1':{
             //传入id,查看学生id所对应的所选课程基本信息
                 string sid="101";
-                string sql= sqlselectSqlConnStr(showStudentTableStr,sid);
+                string sql= sqlselectSqlConnStr(showStudentRollCourseTableStr,sid);
                 ps.selectTable(sql.c_str());
                 break;
                 }
@@ -350,7 +335,7 @@ void StudentControl(Psql &ps){
     }
 
 
-    ps.selectTable(showStudentTableStr.c_str());
+
 
 
 }
@@ -360,6 +345,7 @@ void StudentControl(Psql &ps){
 export void sqlFuncsystem(User who)
 {
     Psql &ps=Psql::getControlsql();
+
 
 
 
@@ -375,25 +361,29 @@ export void sqlFuncsystem(User who)
     }
 
 
+
+
     /*
     // 1. 插入学生表
-    ps.insertTable("INSERT INTO student (id, name) VALUES (101, '张三')");
-    ps.insertTable("INSERT INTO student (id, name) VALUES (102, '李四')");
-    ps.insertTable("INSERT INTO student (id, name) VALUES (103, '王五')");
-    ps.insertTable("INSERT INTO student (id, name) VALUES (104, '赵六')");
-    ps.insertTable("INSERT INTO student (id, name) VALUES (105, '孙七')");
+    ps.controlTable("INSERT INTO student (id, name) VALUES (101, '张三')");
+    ps.controlTable("INSERT INTO student (id, name) VALUES (102, '李四')");
+    ps.controlTable("INSERT INTO student (id, name) VALUES (103, '王五')");
+    ps.controlTable("INSERT INTO student (id, name) VALUES (104, '赵六')");
+    ps.controlTable("INSERT INTO student (id, name) VALUES (105, '孙七')");
 
     // 2. 插入课程表
-    ps.insertTable("INSERT INTO course (id, name) VALUES (1, 'C_programs')");
-    ps.insertTable("INSERT INTO course (id, name) VALUES (2, 'Data_Structure')");
-    ps.insertTable("INSERT INTO course (id, name) VALUES (3, 'Advanced_Math')");
+    ps.controlTable("INSERT INTO course (id, name) VALUES (1, 'C_programs')");
+    ps.controlTable("INSERT INTO course (id, name) VALUES (2, 'Data_Structure')");
+    ps.controlTable("INSERT INTO course (id, name) VALUES (3, 'Advanced_Math')");
 
     // 3. 插入选课关系表
-    ps.insertTable("INSERT INTO studentcourse (student_id, course_id) VALUES (101, 1)");
-    ps.insertTable("INSERT INTO studentcourse  (student_id, course_id) VALUES (102, 2)");
-    ps.insertTable("INSERT INTO studentcourse  (student_id, course_id) VALUES (103, 3)");
-    ps.insertTable("INSERT INTO studentcourse  (student_id, course_id) VALUES (104, 1)");
-    ps.insertTable("INSERT INTO studentcourse (student_id, course_id) VALUES (105, 2)");
+    ps.controlTable("INSERT INTO studentcourse (student_id, course_id) VALUES (101, 1)");
+     ps.controlTable("INSERT INTO studentcourse (student_id, course_id) VALUES (101, 2)");
+      ps.controlTable("INSERT INTO studentcourse (student_id, course_id) VALUES (101, 3)");
+    ps.controlTable("INSERT INTO studentcourse  (student_id, course_id) VALUES (102, 2)");
+    ps.controlTable("INSERT INTO studentcourse  (student_id, course_id) VALUES (103, 3)");
+    ps.controlTable("INSERT INTO studentcourse  (student_id, course_id) VALUES (104, 1)");
+    ps.controlTable("INSERT INTO studentcourse (student_id, course_id) VALUES (105, 2)");
 
 */
 
