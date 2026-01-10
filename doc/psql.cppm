@@ -20,21 +20,21 @@ using std::string;
 //常用数据库sql语句
 
 //------------------------------------学生类sql
-const string showStudentTableStr="select * from student ";
+const string showStudentTableStr="select * from student ";//sql查学生表
 
 const string showStudentTableStrOrdeBy="select * from Student Order BY id ASC";//正序查询学生表
 
 //------------------------------------老师类sql
-const string showTeacherTableStr="select * from teacher ";
+const string showTeacherTableStr="select * from teacher ";//sql查老师
 
 //-------------------------------------课程类sql
-const string showCourseTableStr="select * from course ";
+const string showCourseTableStr="select * from course ";//sql查课程
 
 //-------------------------------------学生选课课程关系sql
 
 const string showStudentRollCourseTableStr="select name from course where id in (select course_id from studentcourse where student_id = ";//查看关系表
-const string deleteStudentControlCourseTableStr="delete from studentcourse where ";
-const string insertStudentControlCourseTableStr="insert into studentcourse (course_id,student_id) values ";
+const string deleteStudentControlCourseTableStr="delete from studentcourse where ";//删除选课的拼接语句
+const string insertStudentControlCourseTableStr="insert into studentcourse (course_id,student_id) values ";//选课的拼接语句
 
 
 
@@ -63,7 +63,7 @@ export typedef enum User{
 
 
 
-//--------------------------------------------------------------接口类声明----------------------------------------------
+//--------------------------------------------------------------接口类声明--------------------------------------------------------------------------------------------
 //创建接口类
 export class Psql{
     friend void sqlFuncsystem(User who);
@@ -88,9 +88,12 @@ private:
 
 
 
-//--------------------------------------------------------------工具函数声明----------------------------------------------
-string sqlselectSqlConnStr(const string &sqlcon,const string &id);//拼接查询sql语句返回where限制的sql语句，更精确的查找或者删除，
-string sqlControlStudentCourseStr(const string &id,bool roll);//拼接更新sql语句SET限制的sql语句,bool用来判断是选还是退（取消选则的课）
+//--------------------------------------------------------------工具函数声明--------------------------------------------------------------------------------------------
+//拼接查询sql语句返回where限制的sql语句，更精确的查找或者删除，
+string sqlselectSqlConnStr(const string &sqlcon,const string &id);
+
+//拼接更新sql语句SET限制的sql语句,bool用来判断是选还是退（取消选则的课）
+string sqlControlStudentCourseStr(const int& Notin,const string &id,bool roll);
 
 //设置登陆对象的函数方法，设置权限不同
 void TeacherControl(Psql &ps);//老师登陆
@@ -99,12 +102,18 @@ void StudentControl(Psql &ps);//学生登陆
 
 
 //选和退选课程的操作，传输课程名字，映射到对应的列上面去，roll=true为选课，roll=false为退课
-void StudentWithCourse(Psql &ps,const string& Notin,const string& id,bool roll);
+void StudentWithCourse(Psql &ps,const int& Notin,const string& id,bool roll);
 
 
 
 
-//------------------------------------------------------------------数据库和程序的命令接口实现
+//优化界面类
+
+void pressAnyKeyToConntinue();
+
+
+
+//------------------------------------------------------------------数据库和程序的命令接口实现----------------------------------------------
 
 //初始化连接
 Psql::Psql():constr("host=localhost dbname=postgres user=postgres password= port=5432"),conclass(nullptr){
@@ -118,6 +127,8 @@ Psql::Psql():constr("host=localhost dbname=postgres user=postgres password= port
     }
     print("...connect database  Sucessfully!!\n");
     print("==== connect information ====\n");
+
+    //显示登陆用户
     print("\tdatabaseName: {}\n",PQdb(conclass));
     print("\tloginUser: {}\n",PQuser(conclass));
 
@@ -180,7 +191,7 @@ void Psql::selectTable(const char *input){
 
 }
 
-//增加函数接口
+//控制函数接口--增删改
 void Psql::controlTable(const char *input){
       PGresult *res=PQexec(conclass,input);//查询获取对象指针
       if(PQresultStatus(res)==PGRES_COMMAND_OK)
@@ -194,56 +205,72 @@ void Psql::controlTable(const char *input){
 }
 
 
-//--------------------------------------------------------------------用户操作函数实现
+//--------------------------------------------------------------------用户操作函数实现----------------------------------------------
+
+//优化操作
+void pressAnyKeyToConntinue(){
+    print("请按任意键继续..\n");
+    std::getchar();
+
+}
 
 
+
+//拼接常用sql语句返回where限制的sql语句，更精确的查找
 string sqlselectSqlConnStr(const string &sqlcon,const string &id){
             string Add = sqlcon+id+")";
             return Add;
-}//拼接常用sql语句返回where限制的sql语句，更精确的查找或者删除，
+}
 
 
-
-string sqlControlStudentCourseStr(const string& Notin,const string &id,bool roll){
+//拼接控制学生选课表的增加或者删除
+string sqlControlStudentCourseStr(const int& Notin,const string &id,bool roll){
 //1———C——programs,   2----Data_Structure , 3-----Advanced_Math的数据id映射关系操作studentcourse
+    //roll为判断选课还是退选，然后拼接sql语句
     string Add;
-    if(Notin=="C_programs")
-    {
+
+    switch (Notin) {
+    case 1:{
         if(roll==false)//false为退选，true为选课
         {
              Add = deleteStudentControlCourseTableStr+ " course_id = 1 AND student_id = "+id;//更新删除，两个主键确定一行，然后把这行都设置为null
         }else{
             Add = insertStudentControlCourseTableStr+"(1,"+id+")";
         }
-
-    }else if(Notin=="Data_Structure")
-    {
+    }
+        break;
+    case 2:{
         if(roll==false)
         {
             Add = deleteStudentControlCourseTableStr+ " course_id = 2 AND student_id = "+id;//对应数据库课程退选
         }else{
             Add = insertStudentControlCourseTableStr+"(2,"+id+")";//对应数据库课程选
         }
-
-    }else if(Notin=="Advanced_Math"){
+    }
+        break;
+    case 3:{
         if(roll==false)
         {
              Add = deleteStudentControlCourseTableStr+ " course_id = 3 AND student_id = "+id;//对应数学课程退选
         }else{
              Add = insertStudentControlCourseTableStr+"(3,"+id+")";//对应数学课程选
         }
-
     }
+        break;
+    default:
+        break;
+    }
+
     return Add;
 
-}//拼接更新sql语句SET限制的sql语句
+}
 
 
-//退选课程的操作，传输课程名字，映射到对应的列上面去
 
 
-//选课程的操作，传输课程名字，映射到对应的列上面去
-void StudentWithCourse(Psql &ps,const string& Notin,const string& id,bool roll){
+
+//选和退选课程的操作，传输课程名字，映射到对应的列上面去
+void StudentWithCourse(Psql &ps,const int& Notin,const string& id,bool roll){
     const string &controlcourse=sqlControlStudentCourseStr(Notin,id,roll);//获取到特定的列
     if(controlcourse=="")
     {
@@ -277,13 +304,14 @@ void StudentControl(Psql &ps){
     {
         //清除输入缓冲区内容
 
+
         print("===select your function\n");
         print("1: 展示当前已选课表\n");
         print("2: 退选课表\n");
         print("3: 选课\n");
         print("4: 退出功能\n");
 
-        char c;
+        int c;
         std::cin>>c;
 
 
@@ -291,52 +319,58 @@ void StudentControl(Psql &ps){
         switch(c)
         {
             std::cin.ignore(std::numeric_limits<std::streamsize>::max(),'\n');
-            case '1':{
+            case 1:{
             //传入id,查看学生id所对应的所选课程基本信息
                 string sid="101";
                 string sql= sqlselectSqlConnStr(showStudentRollCourseTableStr,sid);
                 ps.selectTable(sql.c_str());
+
+                pressAnyKeyToConntinue();
                 break;
-                }
-            case '2':{
+
+            }
+
+            case 2:{
 
             //传入tid,输入退选课程，在退选函数中进行操作
                 string tid="101";
-                print("输入你想退选的课程\n");
-                string notroll;
+                print("输入你想退选的课程,输入课程对应的数字id\n");
+                ps.selectTable(showCourseTableStr.c_str());
+                int notroll;
                 std::cin>>notroll;
                 StudentWithCourse(ps,notroll,tid,false);//退选函数
 
+                pressAnyKeyToConntinue();
+
                 break;
                 }
-            case '3':{
+            case 3:{
                 string tid="101";
-                print("输入你想选的课程\n");
-                string roll;
+                print("输入你想选的课程,输入课程对应的数字id\n");
+                ps.selectTable(showCourseTableStr.c_str());
+                int roll;
                 std::cin>>roll;
                 StudentWithCourse(ps,roll,tid,true);//退选函数
+
+                pressAnyKeyToConntinue();
+
                 }
                 break;
-            case '4':
+            case 4:
                 run=false;
                 break;
             defalut:
-                std::cin.ignore(std::numeric_limits<std::streamsize>::max(),'\n');
+
                 break;
-
-
-
         }
 
+        //清除错误状态，匹配下次的输入
+        std::cin.clear();
 
-
-
+         while (std::cin.get() != '\n');//清除错误输入的字符
+        std::system("printf \"\\033c\"");
 
     }
-
-
-
-
 
 }
 
