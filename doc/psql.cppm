@@ -203,7 +203,7 @@ string sqlupdatetSqlConnStr(const string &sqlcon,const string& Notin,const strin
     string Add;
     if(Notin=="C_programs")
     {
-        if(roll=false)
+        if(roll==false)
         {
              Add = sqlcon+" major1 = null "+" where id ="+id;//对应c课程退选
         }else{
@@ -212,7 +212,7 @@ string sqlupdatetSqlConnStr(const string &sqlcon,const string& Notin,const strin
 
     }else if(Notin=="Data_Structure")
     {
-        if(roll=false)
+        if(roll==false)
         {
             Add = sqlcon+" major2 = null "+" where id ="+id;//对应数据库课程退选
         }else{
@@ -220,7 +220,7 @@ string sqlupdatetSqlConnStr(const string &sqlcon,const string& Notin,const strin
         }
 
     }else if(Notin=="Advanced_Math"){
-        if(roll=false)
+        if(roll==false)
         {
              Add = sqlcon+" major3 = null "+" where id ="+id;//对应数学课程退选
         }else{
