@@ -18,16 +18,37 @@ using std::string;
 
 
 //常用数据库sql语句
-const string showStudentTableStr="select * from Student";
-const string showTeacherTableStr="select * from Teacher";
-const string showStudentRollCourseTableStr="select * from StudentRollinCourse";
-const string showCourseHaveStudentTableStr="select * from CourseHaveStudent";
 
-//正序查询学生表
-const string showStudentTableStrOrdeBy="select * from Student Order BY id ASC";
-//要规范化：major1=。。。mahor2=。。特定的，输入专业自动匹配数据库当中的列，然后删除，插入时也是，要列对应特定的专业
+//------------------------------------学生类sql
+const string showStudentTableStr="select * from student ";
 
-const string updateStudentTableStr="update  Student SET ";
+const string showStudentTableStrOrdeBy="select * from Student Order BY id ASC";//正序查询学生表
+
+//------------------------------------老师类sql
+const string showTeacherTableStr="select * from teacher ";
+
+//-------------------------------------课程类sql
+const string showCourseTableStr="select * from course ";
+
+//-------------------------------------学生选课课程关系sql
+
+const string showStudentRollCourseTableStr="select * from studentcourse ";//查看关系表
+const string updateStudentTableStr="update  studentcourse SET ";
+
+
+
+//------------------------------------老师学生关系sql
+
+const string showCourseHaveStudentTableStr="select * from teacherstudent";
+
+
+
+
+
+
+
+
+
 
 
 
@@ -258,7 +279,7 @@ void TeacherControl(Psql &ps){
 
 }
 
-//学生操作数据库
+//学生操作数据库--待传入id号
 void StudentControl(Psql &ps){
 
     //test
@@ -354,15 +375,26 @@ export void sqlFuncsystem(User who)
     }
 
 
-/*
-    ps.insertTable("insert into student (id,name,major1,maxcredits) values(101,'张三','C_programs','88')");
-    ps.insertTable("insert into student (id,name,major2,maxcredits) values(102,'李四','Data_Structure','91')");
-    ps.insertTable("insert into student (id,name,major3,maxcredits) values(103,'王五','Advanced_Math','85')");
-    ps.insertTable("insert into student (id,name,major1,maxcredits) values(104,'赵六','C_programs','92')");
-    ps.insertTable("insert into student (id,name,major2,maxcredits) values(105,'孙七','Data_Structure','89')");
-    //ps.dropTable("delete from student where id = 2 ");
+    /*
+    // 1. 插入学生表
+    ps.insertTable("INSERT INTO student (id, name) VALUES (101, '张三')");
+    ps.insertTable("INSERT INTO student (id, name) VALUES (102, '李四')");
+    ps.insertTable("INSERT INTO student (id, name) VALUES (103, '王五')");
+    ps.insertTable("INSERT INTO student (id, name) VALUES (104, '赵六')");
+    ps.insertTable("INSERT INTO student (id, name) VALUES (105, '孙七')");
+
+    // 2. 插入课程表
+    ps.insertTable("INSERT INTO course (id, name) VALUES (1, 'C_programs')");
+    ps.insertTable("INSERT INTO course (id, name) VALUES (2, 'Data_Structure')");
+    ps.insertTable("INSERT INTO course (id, name) VALUES (3, 'Advanced_Math')");
+
+    // 3. 插入选课关系表
+    ps.insertTable("INSERT INTO studentcourse (student_id, course_id) VALUES (101, 1)");
+    ps.insertTable("INSERT INTO studentcourse  (student_id, course_id) VALUES (102, 2)");
+    ps.insertTable("INSERT INTO studentcourse  (student_id, course_id) VALUES (103, 3)");
+    ps.insertTable("INSERT INTO studentcourse  (student_id, course_id) VALUES (104, 1)");
+    ps.insertTable("INSERT INTO studentcourse (student_id, course_id) VALUES (105, 2)");
+
 */
-
-
 
 }
