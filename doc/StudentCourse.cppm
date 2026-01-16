@@ -1,3 +1,6 @@
+//该模块用于集合所有模块
+
+
 export module studentCourse;
 
 
