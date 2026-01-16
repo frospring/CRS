@@ -1,6 +1,6 @@
 
 
-import registrar;
+import studentCourse;
 import std;
 int main()
 {

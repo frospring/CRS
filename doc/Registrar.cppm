@@ -1,3 +1,3 @@
-export module registrar;
+export module studentCourse:registrar;
 
-export import  :psql;
+

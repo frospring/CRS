@@ -4,7 +4,7 @@ module;//全局混用头文件和模块
 /*this files is build by author: tangshengqing2024051604041 at 2026-01-07*/
 //email address:2052448030@qq.com
 #include<libpq-fe.h>//导入postgresql的头文件
-export module registrar:psql;
+export module studentCourse:psql;
 
 // ---------student --datatable: major1: C_programs , major2: Data_Structure  major3:Advanced_Math 以便于用来对数据库的列进行操作
 
