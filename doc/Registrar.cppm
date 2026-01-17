@@ -13,8 +13,169 @@ import :psql;//导入接口文件
 using std::string;
 
 //---------------------------------------------------------实现-------------------------------------------------------------//
+// File: registrar.cppm   Version: 0.1.0   License: AGPLv3
+// Created: pangwenhao      2026-01-17 16:02:04
+// Description:
+//
+// Module: Registrar
 
+import std;
+using std::string;
+using std::vector;
 
+// 前置声明
+class Student;
+class Course;
+class Teacher;
+
+export class Registrar
+{
+public:
+    // 原有接口（无需修改，后续完善）
+    static Registrar& singleton();
+    void studentEnrollsInCourse(string sid, string cid);
+    void studentSchedule(const string& sid);
+    void courseRoster(string cid);
+    void initialize();
+
+    // 新增：教师管理接口（预留，后续完善）
+    void addTeacher(Teacher* teacher);
+    void bindTeacherToCourse(string tid, string cid);
+    void teacherTaughtCourses(string tid);
+
+private:
+    // 原有构造函数（禁止直接实例化，单例模式）
+    Registrar();
+    // 原有查找接口
+    Student* findStudentById(const string& id);
+    Course* findCourseById(const string& id);
+    // 新增：查找教师接口
+    Teacher* findTeacherById(const string& id);
+
+    // 原有属性
+    vector<Course*> _courses;
+    vector<Student*> _students;
+    // 新增：教师列表
+    vector<Teacher*> _teachers;
+};
+
+// ----- The implementaion of class Registrar -----
+// 单例实现（原有逻辑保留）
+Registrar &Registrar::singleton(){
+    static Registrar instance;
+    return instance;
+}
+
+// 学生选课调度（原有逻辑保留，注释内为核心调度）
+void Registrar::studentEnrollsInCourse(string sid, string cid){
+    // 核心逻辑：查找学生与课程，调用学生选课接口
+    Student* student = findStudentById(sid);
+    Course* course = findCourseById(cid);
+    if (student && course) {
+        student->enrollsIn(course);
+    }
+}
+
+// 学生课表查询（原有逻辑保留）
+void Registrar::studentSchedule(const string &sid)
+{
+    // 核心逻辑：查找学生，调用学生课表接口并打印
+    auto s = findStudentById(sid);
+    if (s) { // 增加空指针判断，避免崩溃
+        std::print("{}\n",s->schedule());
+    }
+}
+
+// 课程花名册查询（原有逻辑保留）
+void Registrar::courseRoster(string cid){
+    // 核心逻辑：查找课程，调用课程花名册接口并打印
+    auto c = findCourseById(cid);
+    if (c) { // 增加空指针判断，避免崩溃
+        std::print("{}\n", c->roster());
+    }
+}
+
+// 系统初始化（原有逻辑保留，新增教师初始化）
+void Registrar::initialize(){
+    // 1. 原有逻辑：初始化学生
+    _students.push_back(new Student("S001", "Thomas"));
+    _students.push_back(new Student("S002", "Jerry"));
+    _students.push_back(new Student("S003", "Baker"));
+    _students.push_back(new Student("S004", "Tom"));
+    _students.push_back(new Student("S005", "Musk"));
+
+    // 2. 原有逻辑：初始化课程
+    _courses.push_back(new Course("CS101", "C Programming"));
+    _courses.push_back(new Course("CS201", "Data structure"));
+    _courses.push_back(new Course("MATH101", "Advanced Math"));
+
+    // 3. 新增逻辑：初始化教师并绑定课程
+    auto t1 = new Teacher("T001", "Professor Lee", "Computer Science");
+    auto t2 = new Teacher("T002", "Dr. Wang", "Mathematics");
+    _teachers.push_back(t1);
+    _teachers.push_back(t2);
+
+    // 绑定教师与课程
+    bindTeacherToCourse("T001", "CS101");
+    bindTeacherToCourse("T001", "CS201");
+    bindTeacherToCourse("T002", "MATH101");
+}
+
+// 私有构造函数（原有逻辑保留）
+Registrar::Registrar(){}
+
+// 查找学生（原有逻辑保留）
+Student *Registrar::findStudentById(const string &id){
+    // 核心逻辑：遍历学生列表，匹配ID返回学生对象
+    for (auto& student :_students) {
+        if (student->hasId(id))
+            return student;
+    }
+    return nullptr;
+}
+
+// 查找课程（原有逻辑保留）
+Course *Registrar::findCourseById(const string &id){
+    // 核心逻辑：遍历课程列表，匹配ID返回课程对象
+    for (auto& course : _courses) {
+        if (course->hasId(id) )
+            return course;
+    }
+    return nullptr;
+}
+
+// 新增：查找教师（核心逻辑：遍历教师列表，匹配ID返回教师对象）
+Teacher* Registrar::findTeacherById(const string& id) {
+    for (auto& teacher : _teachers) {
+        if (teacher->hasId(id))
+            return teacher;
+    }
+    return nullptr;
+}
+
+// 新增：添加教师（核心逻辑：将教师加入系统列表）
+void Registrar::addTeacher(Teacher* teacher) {
+    if (teacher && !findTeacherById(teacher->hasId(teacher->info()))) {
+        _teachers.push_back(teacher);
+    }
+}
+
+// 新增：绑定教师与课程（核心逻辑：调度教师与课程的双向绑定）
+void Registrar::bindTeacherToCourse(string tid, string cid) {
+    auto teacher = findTeacherById(tid);
+    auto course = findCourseById(cid);
+    if (teacher && course) {
+        teacher->addTaughtCourse(course);
+    }
+}
+
+// 新增：查询教师授课列表（核心逻辑：调度教师授课花名册接口并打印）
+void Registrar::teacherTaughtCourses(string tid) {
+    auto teacher = findTeacherById(tid);
+    if (teacher) {
+        std::print("{}\n", teacher->getTaughtCoursesRoster());
+    }
+}
 
 
 
