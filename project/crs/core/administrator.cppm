@@ -1,4 +1,4 @@
-// core/administrator.cppm
+// core/administrator.cppm (最终修正版)
 export module crs.core.administrator;
 
 import crs.core.user; // 导入基类模块
@@ -25,22 +25,21 @@ public:
 
     // 管理员特有方法（示例）
     void createUserAccount(const User& newUser) {
-        // 此处应实现创建用户账户的逻辑（简化为打印）
-        std::cout << "Created new user account for: " << newUser.getName()
-                  << " (Type: ";
-
-        if (dynamic_cast<const Student*>(&newUser)) {
-            std::cout << "Student";
-        } else if (dynamic_cast<const Teacher*>(&newUser)) {
-            std::cout << "Teacher";
-        } else if (dynamic_cast<const Administrator*>(&newUser)) {
-            std::cout << "Administrator";
+        // 通过 RTTI 判断用户类型
+        if (const auto* student = dynamic_cast<const Student*>(&newUser)) {
+            std::cout << "Created new user account for: " << student->getName()
+                      << " (Type: Student)" << std::endl;
+        } else if (const auto* teacher = dynamic_cast<const Teacher*>(&newUser)) {
+            std::cout << "Created new user account for: " << teacher->getName()
+                      << " (Type: Teacher)" << std::endl;
+        } else if (const auto* admin = dynamic_cast<const Administrator*>(&newUser)) {
+            std::cout << "Created new user account for: " << admin->getName()
+                      << " (Type: Administrator)" << std::endl;
         } else {
-            std::cout << "Unknown";
+            std::cout << "Created new user account for: " << newUser.getName()
+                      << " (Type: Unknown)" << std::endl;
         }
-
-        std::cout << ")" << std::endl;
     }
 };
 
-} // namespace crs::core
+}

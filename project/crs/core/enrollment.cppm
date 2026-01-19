@@ -1,4 +1,4 @@
-// core/enrollment.cppm
+// core/enrollment.cppm (最终修正版)
 export module crs.core.enrollment;
 
 import crs.core.student;   // 导入学生模块
@@ -12,14 +12,13 @@ export namespace crs::core {
 
 class EnrollmentManager {
 private:
-    // 使用指针或引用以支持多态（如果需要）
     static inline int nextEnrollmentId = 1000;
 public:
 
      static int createEnrollment(std::shared_ptr<Student> student,
                                  const Course& course) {
          if (!student) {
-             throw new ("Invalid student");
+             throw std::invalid_argument("Invalid student");
          }
          int enrollmentId = nextEnrollmentId++;
          student->enrollCourse(course.getCourseId());
@@ -27,22 +26,19 @@ public:
          return enrollmentId;
      }
 
-
-     static bool dropCourse(std ::shared_ptr<Student> student ,std :: string courseId ){
-           if(!student){
-               throw new ("invalid student ");
+     static bool dropCourse(std::shared_ptr<Student> student, const std::string& courseId) {
+           if (!student) {
+               throw std::invalid_argument("Invalid student");
            }
 
-           auto &courses =student ->getEnrolledCourses ();
-           auto it =std ::find(courses.begin (),courses.end (),courseId );
-           if(it !=courses.end()){
-               courses.erase(it );
-               return true ;
+           auto& courses = student->getEnrolledCourses();
+           auto it = std::find(courses.begin(), courses.end(), courseId);
+           if (it != courses.end()) {
+               courses.erase(it);
+               return true;
            }
-           return false ;
+           return false;
      }
-
-
 };
 
 } // namespace crs :: core
