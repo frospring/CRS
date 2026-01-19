@@ -1,13 +1,23 @@
 
+import studentCourse;
 
-35c9a31fa10d7c9d505b4e456e5af05df7f48251
+import std;
+
+
+
+int main(){
             // File: main.cpp   Version: 0.1.0   License: AGPLv3
             // Created: pangwenhao      2026-01-17 16:03:13
             // Description:
             //
     // alias for static function Registrar::singleton
-    auto system = &Registrar::singleton;
+    auto &system = Registrar::singleton();
+    system.initialize();
 
+
+
+
+/*
     // 系统初始化（包含学生、课程、教师）
     system().initialize();
 
@@ -43,7 +53,7 @@
     system().teacherTaughtCourses("T001");
     system().teacherTaughtCourses("T002");
 
-
+*/
     return 0;
 
 }
