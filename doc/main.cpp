@@ -11,49 +11,81 @@ int main(){
             // Description:
             //
     // alias for static function Registrar::singleton
-    auto &system = Registrar::singleton();
+   auto &system = Registrar::singleton();
     system.initialize();
 
 
-
-
-/*
-    // 系统初始化（包含学生、课程、教师）
-    system().initialize();
-
     // 原有逻辑：模拟学生选课
-    system().studentEnrollsInCourse("S001", "CS101");
-    system().studentEnrollsInCourse("S001", "CS201");
-    system().studentEnrollsInCourse("S001", "MATH101");
+    system.studentEnrollsInCourse("2001", "101");
+    system.studentEnrollsInCourse("2001", "201");
+    system.studentEnrollsInCourse("2001", "301");
 
-    system().studentEnrollsInCourse("S002", "CS101");
-    system().studentEnrollsInCourse("S002", "MATH101");
+    system.studentEnrollsInCourse("2002", "101");
+    system.studentEnrollsInCourse("2002", "301");
 
-    system().studentEnrollsInCourse("S003", "CS201");
-    system().studentEnrollsInCourse("S003", "MATH101");
+    system.studentEnrollsInCourse("2003", "201");
+    system.studentEnrollsInCourse("2003", "301");
 
-    system().studentEnrollsInCourse("S004", "CS101");
-    system().studentEnrollsInCourse("S004", "CS201");
+    system.studentEnrollsInCourse("2004", "101");
+    system.studentEnrollsInCourse("2004", "201");
 
-    system().studentEnrollsInCourse("S005", "CS201");
+    system.studentEnrollsInCourse("2005", "201");
 
     std::println();
 
     // 原有逻辑：查询课程花名册
-    system().courseRoster("CS101");
-    system().courseRoster("CS201");
-    system().courseRoster("MATH101");
+    system.courseRoster("101");
+    system.courseRoster("201");
+    system.courseRoster("301");
 
     // 原有逻辑：查询学生课表
-    system().studentSchedule("S001");
-    system().studentSchedule("S003");
+    system.studentSchedule("2001");
+    system.studentSchedule("2003");
 
     // 新增：查询教师授课汇总
     std::println("\n----- 教师授课信息汇总 -----");
-    system().teacherTaughtCourses("T001");
-    system().teacherTaughtCourses("T002");
+    system.teacherTaughtCourses("1001");
+    system.teacherTaughtCourses("1002");
 
+
+/*
+
+    // 系统初始化（包含学生、课程、教师）
+    system.initialize();
+
+    // 原有逻辑：模拟学生选课
+    system.studentEnrollsInCourse("2001", "101");
+    system.studentEnrollsInCourse("2001", "201");
+    system.studentEnrollsInCourse("2001", "301");
+
+    system.studentEnrollsInCourse("2002", "101");
+    system.studentEnrollsInCourse("2002", "301");
+
+    system.studentEnrollsInCourse("2003", "201");
+    system.studentEnrollsInCourse("2003", "301");
+
+    system.studentEnrollsInCourse("2004", "101");
+    system.studentEnrollsInCourse("2004", "201");
+
+    system.studentEnrollsInCourse("2005", "201");
+
+    std::println();
+
+    // 原有逻辑：查询课程花名册
+    system.courseRoster("101");
+    system.courseRoster("201");
+    system.courseRoster("301");
+
+    // 原有逻辑：查询学生课表
+    system.studentSchedule("2001");
+    system.studentSchedule("2003");
+
+    // 新增：查询教师授课汇总
+    std::println("\n----- 教师授课信息汇总 -----");
+    system.teacherTaughtCourses("1001");
+    system.teacherTaughtCourses("1002");
 */
+
     return 0;
 
 }

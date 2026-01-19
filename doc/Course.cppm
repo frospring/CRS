@@ -25,6 +25,7 @@ public:
     Course(string id, string name);
     bool acceptEnrollment(Student* student);
     string roster();
+    void enrollsIn(Student *ss);
     string info();
     bool hasId(string id);
 
@@ -43,6 +44,9 @@ private:
     // 新增：关联授课教师
     Teacher* _boundTeacher = nullptr;
 };
+
+
+
 
 // ----- Partial implementation of class Course -----
 // 静态成员初始化（原有逻辑保留）
@@ -76,6 +80,11 @@ string Course::info(){
 // 课程ID校验（原有逻辑保留）
 bool Course::hasId(string id){
     return id == m_id;
+}
+
+void Course::enrollsIn(Student *ss){
+    _students.push_back(ss);
+
 }
 
 // 新增：绑定教师核心逻辑（注释内实现，无额外扩展）

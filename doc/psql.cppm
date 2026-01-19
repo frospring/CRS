@@ -219,11 +219,12 @@ void Psql::insertTable(const string &table,const string &date1,const string &dat
          isExist = "select count(*) from " + table + " where teacher_id = " +date1+" AND course_id = "+date2;//先查看存在不再插入
     }else if(table=="studentcourse")
     {
-         isExist = "select count(*) from " + table + " where studet_id = " +date1+" AND course_id =" +date2;//先查看存在不再插入
+         isExist = "select count(*) from " + table + " where student_id = " +date1+" AND course_id =" +date2;//先查看存在不再插入
+
     }
 
 
-   // print("{}",isExist);
+
 
      PGresult *res=PQexec(conclass,isExist.c_str());//查询获取对象指针
 

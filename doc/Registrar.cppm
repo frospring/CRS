@@ -34,7 +34,7 @@ export class Registrar
 public:
     // 原有接口（无需修改，后续完善）
     static Registrar& singleton();
-    void studentEnrollsInCourse(string sid, string cid);
+    void studentEnrollsInCourse(const string &sid,const  string &cid);
     void studentSchedule(const string& sid);
     void courseRoster(string cid);
     void initialize();
@@ -59,9 +59,15 @@ private:
     // 新增：教师列表
     vector<Teacher*> _teachers;
 
-    Psql ps;//管理和数据库的接口
+    Psql &ps=Psql::getControlsql();//管理和数据库的接口
 
 };
+
+// 私有构造函数（原有逻辑保留）
+Registrar::Registrar(){}
+
+
+
 
 // ----- The implementaion of class Registrar -----
 // 单例实现（原有逻辑保留）
@@ -71,12 +77,15 @@ Registrar &Registrar::singleton(){
 }
 
 // 学生选课调度（原有逻辑保留，注释内为核心调度）
-void Registrar::studentEnrollsInCourse(string sid, string cid){
+void Registrar::studentEnrollsInCourse(const string &sid, const string &cid){
     // 核心逻辑：查找学生与课程，调用学生选课接口
     Student* student = findStudentById(sid);
     Course* course = findCourseById(cid);
     if (student && course) {
         student->enrollsIn(course);
+        course->enrollsIn(student);
+
+         ps.insertTable("studentcourse",sid.c_str(),cid.c_str());//插入到学生选课程表当中
     }
 }
 
@@ -158,11 +167,6 @@ void Registrar::initialize(){
 
 
 
-
-}
-
-// 私有构造函数（原有逻辑保留）
-Registrar::Registrar():ps(Psql::getControlsql()){
 
 }
 
