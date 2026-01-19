@@ -6,13 +6,14 @@
 
 export module studentCourse:student;
 import std;
-import :course; // 导入Course模块
+
+class Course;
 
 using std::string;
 using std::vector;
 
 // 前置声明
-class Course;
+
 
 export class Student
 {
@@ -52,20 +53,6 @@ bool Student::hasId(string id)
     return id == m_id;
 }
 
-// 选课关联逻辑（原有逻辑保留，注释内为核心交互）
-void Student::enrollsIn(Course *course){
-    // 核心逻辑：调用课程选课接口，成功后添加到学生课程列表
-    if(course->acceptEnrollment(this))
-        _courses.push_back(course);
-}
 
-// 课表逻辑（原有逻辑保留）
-string Student::schedule()
-{
-    // 核心逻辑：拼接学生姓名+所选课程列表，返回格式化课表
-    auto s = std::format("{}'s schedule:\n", m_name);
-    for(auto &c: _courses){
-        s += c->info();
-    }
-    return s;
-}
+
+

@@ -3,7 +3,9 @@
 import studentCourse;
 import std;
 int main()
-{/ Module
+{
+
+
             // File: main.cpp   Version: 0.1.0   License: AGPLv3
             // Created: pangwenhao      2026-01-17 16:03:13
             // Description:
@@ -48,5 +50,6 @@ int main()
 
 
     return 0;
+
 }
 

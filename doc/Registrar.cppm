@@ -8,6 +8,9 @@ export module studentCourse:registrar;
 
 
 import std;
+import :student;
+import :course;
+import :teacher;
 
 import :psql;//导入接口文件
 using std::string;
@@ -19,14 +22,12 @@ using std::string;
 //
 // Module: Registrar
 
-import std;
+
 using std::string;
 using std::vector;
 
 // 前置声明
-class Student;
-class Course;
-class Teacher;
+
 
 export class Registrar
 {
@@ -155,7 +156,7 @@ Teacher* Registrar::findTeacherById(const string& id) {
 
 // 新增：添加教师（核心逻辑：将教师加入系统列表）
 void Registrar::addTeacher(Teacher* teacher) {
-    if (teacher && !findTeacherById(teacher->hasId(teacher->info()))) {
+    if (teacher && !findTeacherById(teacher->findeId())) {
         _teachers.push_back(teacher);
     }
 }
@@ -187,14 +188,63 @@ void Registrar::teacherTaughtCourses(string tid) {
 
 
 
+/*this files is build by author: zhengkaiwen2024051604060 at 2026-01-19*/
+//email address:1663802680@qq.com
+
+
+//实现在Registrar中，原student不能循环导入模块
+// 花名册逻辑（原有逻辑保留，补充教师信息）
+string Course::roster(){
+    // 核心逻辑：拼接课程名称+学生列表，新增教师关联信息
+    auto rst = std::format("{} selected by the students:\n", m_name);
+    for (auto s : _students) {
+        rst += s->info(); // 课程对象委托学生对象自己输出相关信息
+    }
+    return rst;
+}
 
 
 
+// 添加授课课程（核心逻辑：关联教师与课程，双向绑定）
+void Teacher::addTaughtCourse(Course* course)
+{
+    // 1. 核心逻辑：添加课程到教师授课列表
+    _taughtCourses.push_back(course);
+    // 2. 核心逻辑：反向绑定课程与教师
+    course->bindTeacher(this);
+    std::print("教师{}已绑定课程{}\n", m_name, course->info());
+}
+
+// 获取授课课程花名册汇总（核心逻辑：拼接所有授课课程的学生信息）
+string Teacher::getTaughtCoursesRoster()
+{
+    auto rst = std::format("{}的授课课程汇总：\n", m_name);
+    for (auto course : _taughtCourses) {
+        rst += course->roster() + "\n";
+    }
+    return rst;
+}
 
 
 
+//----------------实现到Registrar中
+// 选课关联逻辑（原有逻辑保留，注释内为核心交互）
+void Student::enrollsIn(Course *course){
+    // 核心逻辑：调用课程选课接口，成功后添加到学生课程列表
+    if(course->acceptEnrollment(this))
+        _courses.push_back(course);
+}
 
-
+// 课表逻辑（原有逻辑保留）
+string Student::schedule()
+{
+    // 核心逻辑：拼接学生姓名+所选课程列表，返回格式化课表
+    auto s = std::format("{}'s schedule:\n", m_name);
+    for(auto &c: _courses){
+        s += c->info();
+    }
+    return s;
+}
 
 
 
@@ -224,8 +274,8 @@ void Registrar::teacherTaughtCourses(string tid) {
 
 //为不同用户设置不同的权限
 export typedef enum User{
-    Teacher,
-    Student,
+    Tea,
+    Stu,
 
 };
 
@@ -440,12 +490,12 @@ export void sqlFuncsystem(User who)
 
 
 
-    if(who==Student)
+    if(who==Stu)
     {
 
          StudentControl(ps);
 
-    }else if(who==Teacher)
+    }else if(who==Tea)
     {
         //教师登陆
 

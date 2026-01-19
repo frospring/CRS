@@ -9,7 +9,8 @@
 export module studentCourse:course;
 
 import std;
-import :student;
+
+class Student;
 
 using std::string;
 using std::vector;
@@ -88,12 +89,4 @@ Teacher* Course::getBoundTeacher() const {
     return _boundTeacher;
 }
 
-// 花名册逻辑（原有逻辑保留，补充教师信息）
-string Course::roster(){
-    // 核心逻辑：拼接课程名称+学生列表，新增教师关联信息
-    auto rst = std::format("{} selected by the students:\n", m_name);
-    for (auto s : _students) {
-        rst += s->info(); // 课程对象委托学生对象自己输出相关信息
-    }
-    return rst;
-}
+
