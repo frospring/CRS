@@ -1,11 +1,6 @@
 
 
-import studentCourse;
-import std;
-int main()
-{
-
-
+35c9a31fa10d7c9d505b4e456e5af05df7f48251
             // File: main.cpp   Version: 0.1.0   License: AGPLv3
             // Created: pangwenhao      2026-01-17 16:03:13
             // Description:
