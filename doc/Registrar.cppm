@@ -108,19 +108,19 @@ void Registrar::initialize(){
 
 
 // 1. 原有逻辑：初始化学生
-    _students.push_back(new Student("001", "Thomas"));
-    _students.push_back(new Student("002", "Jerry"));
-    _students.push_back(new Student("003", "Baker"));
-    _students.push_back(new Student("004", "Tom"));
-    _students.push_back(new Student("005", "Musk"));
+    _students.push_back(new Student("2001", "Thomas"));
+    _students.push_back(new Student("2002", "Jerry"));
+    _students.push_back(new Student("2003", "Baker"));
+    _students.push_back(new Student("2004", "Tom"));
+    _students.push_back(new Student("2005", "Musk"));
 
 
         //同步数据库插入学生信息
-    ps.insertTable("student","001","Thomas");
-    ps.insertTable("student","002","Jerry");
-    ps.insertTable("student","003","Baker");
-    ps.insertTable("student","004","Tom");
-    ps.insertTable("student","005","Musk");
+    ps.insertTable("student","2001","Thomas");
+    ps.insertTable("student","2002","Jerry");
+    ps.insertTable("student","2003","Baker");
+    ps.insertTable("student","2004","Tom");
+    ps.insertTable("student","2005","Musk");
 
 
 
@@ -137,24 +137,24 @@ void Registrar::initialize(){
 
 
 // 3. 新增逻辑：初始化教师并绑定课程
-    _teachers.push_back(new Teacher("001", "Professor Lee", "Computer Science"));
-    _teachers.push_back(new Teacher("002", "Dr.Wang", "Mathematics"));
+    _teachers.push_back(new Teacher("1001", "Professor Lee", "Computer Science"));
+    _teachers.push_back(new Teacher("1002", "Dr.Wang", "Mathematics"));
 
     //同步数据库插入老师信息
-    ps.insertTeacherTable("teacher","001","Professor Lee","Computer Science");
-    ps.insertTeacherTable("teacher","002","Dr.Wang","Mathematics");
+    ps.insertTeacherTable("teacher","1001","Professor Lee","Computer Science");
+    ps.insertTeacherTable("teacher","1002","Dr.Wang","Mathematics");
 
 
 //4. 绑定教师与课
-    bindTeacherToCourse("001", "101");
-    bindTeacherToCourse("001", "201");
-    bindTeacherToCourse("002", "301");
+    bindTeacherToCourse("1001", "101");
+    bindTeacherToCourse("1001", "201");
+    bindTeacherToCourse("1002", "301");
 
 
     //同步数据库插入老师教授课程信息
-    ps.insertTable("teachercourse","001","101");
-    ps.insertTable("teachercourse","001","201");
-    ps.insertTable("teachercourse","001","301");
+    ps.insertTable("teachercourse","1001","101");
+    ps.insertTable("teachercourse","1001","201");
+    ps.insertTable("teachercourse","1001","301");
 
 
 
