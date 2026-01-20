@@ -1,0 +1,6 @@
+C:\Users\firefly\AppData\Local\JetBrains\CLion2024.3\cygwin_cmake\bin\cmake.exe -DCMAKE_BUILD_TYPE=Debug "-DCMAKE_MAKE_PROGRAM=/cygdrive/e/3语言合集/0111clion2024/CLION________________________________________________/CLion 2024.3.6/bin/ninja/cygwin/x64/ninja.exe" -G Ninja -S /cygdrive/e/QT_PROGRAM_PROGRAM/CPP_QTQTQTQQTQTT/TeachingSystem/CRStest1/CRS/doc -B /cygdrive/e/QT_PROGRAM_PROGRAM/CPP_QTQTQTQQTQTT/TeachingSystem/CRStest1/CRS/doc/cmake-build-debug
+CMake Error at CMakeLists.txt:1 (cmake_minimum_required):
+  CMake 4.1.1 or higher is required.  You are running version 3.30.5
+
+
+-- Configuring incomplete, errors occurred!

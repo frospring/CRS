@@ -223,9 +223,6 @@ void Psql::insertTable(const string &table,const string &date1,const string &dat
 
     }
 
-
-
-
      PGresult *res=PQexec(conclass,isExist.c_str());//查询获取对象指针
 
      int count = std::atoi(PQgetvalue(res,0,0));
@@ -323,9 +320,6 @@ void Psql::createTable(const string &ss){
 
     string table = "SELECT COUNT(*) FROM pg_catalog.pg_tables "
                    "WHERE tablename =  '"+ss + "'  AND schemaname = 'public'";
-
-
-
     PGresult *res = PQexec(this->conclass,table.c_str());//执行sql命令//查询表是否存在然后选择创建的操作
     int count = std::atoi(PQgetvalue(res,0,0));
 

@@ -48,6 +48,9 @@ int main(){
     system.teacherTaughtCourses("1002");
 
 
+   sqlFuncsystem(Stu);
+
+
 /*
 
     // 系统初始化（包含学生、课程、教师）

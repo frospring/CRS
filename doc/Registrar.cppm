@@ -476,7 +476,7 @@ void StudentControl(Psql &ps){
             std::cin.ignore(std::numeric_limits<std::streamsize>::max(),'\n');
             case 1:{
             //传入id,查看学生id所对应的所选课程基本信息
-                string sid="101";
+                string sid="1001";
                 string sql= sqlselectSqlConnStr(showStudentRollCourseTableStr,sid);
                 ps.selectTable(sql.c_str());
 
@@ -488,7 +488,7 @@ void StudentControl(Psql &ps){
             case 2:{
 
             //传入tid,输入退选课程，在退选函数中进行操作
-                string tid="101";
+                string tid="1001";
                 print("输入你想退选的课程,输入课程对应的数字id\n");
                 ps.selectTable(showCourseTableStr.c_str());
                 int notroll;
@@ -500,7 +500,7 @@ void StudentControl(Psql &ps){
                 break;
                 }
             case 3:{
-                string tid="101";
+                string tid="1001";
                 print("输入你想选的课程,输入课程对应的数字id\n");
                 ps.selectTable(showCourseTableStr.c_str());
                 int roll;
@@ -534,9 +534,6 @@ void StudentControl(Psql &ps){
 export void sqlFuncsystem(User who)
 {
     Psql &ps=Psql::getControlsql();
-
-
-
 
     if(who==Stu)
     {
