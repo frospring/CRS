@@ -38,12 +38,11 @@ public:
 
     void drop_student();
 
-    // 从数据库加载指定ID的课程信息
     static Course load_from_database(Database& db, string id);
 
-    // 更新数据库
     void save_to_database(Database& db);
 };
+
 
 Course::Course(string id, string name, double credit, int capacity,
                string teacher_id, string time, string address, int selected)

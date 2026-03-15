@@ -11,6 +11,7 @@ project(CRS LANGUAGES CXX)
 add_executable(CRS
     #math.cpp                              # 模块实现单元
     main.cpp
+    datamanager.cppm
 
 
 
@@ -32,7 +33,7 @@ set(MODULE_INTERFACE_FILES
 set(MODULE_Psql_FILES
     #${MODULE_LIB_DIR1}/utils.cppm         #添加模块库的模块接口单元
     #math.cppm
-    psql.cppm# 模块接口单元
+    datamanager.cppm# 模块接口单元
 
 
 )
