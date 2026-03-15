@@ -7,8 +7,6 @@ using std::string;
 using std::vector;
 using std::print;
 using std::println;
-
-export class Course {
 private:
     string course_id;
     string course_name;
@@ -44,12 +42,6 @@ public:
     // 更新数据库
     void save_to_database(Database& db);
 };
-
-Course::Course(string id, string name, double credit, int capacity,
-               string teacher_id, string time, string address, int selected)
-    : course_id(id), course_name(name), credit(credit), capacity(capacity),
-      selected_count(selected), teacher_id(teacher_id),
-      course_time(time), course_address(address) {}
 
 string Course::info() {
     return std::format("课程ID: {}, 名称: {}, 学分: {:.1f}, 容量: {}/{}, 时间: {}, 地点: {}",

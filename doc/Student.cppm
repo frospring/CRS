@@ -53,6 +53,10 @@ bool Student::hasId(string id)
     return id == m_id;
 }
 
+void Student::enrollsIn(Course* course){
+    _courses.push_back(course);
+}
+
 
 
 

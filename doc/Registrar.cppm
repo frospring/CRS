@@ -34,7 +34,7 @@ export class Registrar
 public:
     // 原有接口（无需修改，后续完善）
     static Registrar& singleton();
-    void studentEnrollsInCourse(string sid, string cid);
+    void studentEnrollsInCourse(const string &sid,const  string &cid);
     void studentSchedule(const string& sid);
     void courseRoster(string cid);
     void initialize();
@@ -58,7 +58,16 @@ private:
     vector<Student*> _students;
     // 新增：教师列表
     vector<Teacher*> _teachers;
+
+    Psql &ps=Psql::getControlsql();//管理和数据库的接口
+
 };
+
+// 私有构造函数（原有逻辑保留）
+Registrar::Registrar(){}
+
+
+
 
 // ----- The implementaion of class Registrar -----
 // 单例实现（原有逻辑保留）
@@ -68,12 +77,15 @@ Registrar &Registrar::singleton(){
 }
 
 // 学生选课调度（原有逻辑保留，注释内为核心调度）
-void Registrar::studentEnrollsInCourse(string sid, string cid){
+void Registrar::studentEnrollsInCourse(const string &sid, const string &cid){
     // 核心逻辑：查找学生与课程，调用学生选课接口
     Student* student = findStudentById(sid);
     Course* course = findCourseById(cid);
     if (student && course) {
         student->enrollsIn(course);
+        course->enrollsIn(student);
+
+         ps.insertTable("studentcourse",sid.c_str(),cid.c_str());//插入到学生选课程表当中
     }
 }
 
@@ -98,32 +110,68 @@ void Registrar::courseRoster(string cid){
 
 // 系统初始化（原有逻辑保留，新增教师初始化）
 void Registrar::initialize(){
-    // 1. 原有逻辑：初始化学生
-    _students.push_back(new Student("S001", "Thomas"));
-    _students.push_back(new Student("S002", "Jerry"));
-    _students.push_back(new Student("S003", "Baker"));
-    _students.push_back(new Student("S004", "Tom"));
-    _students.push_back(new Student("S005", "Musk"));
+    //初始数据表
+    ps.InitleTable();
 
-    // 2. 原有逻辑：初始化课程
-    _courses.push_back(new Course("CS101", "C Programming"));
-    _courses.push_back(new Course("CS201", "Data structure"));
-    _courses.push_back(new Course("MATH101", "Advanced Math"));
 
-    // 3. 新增逻辑：初始化教师并绑定课程
-    auto t1 = new Teacher("T001", "Professor Lee", "Computer Science");
-    auto t2 = new Teacher("T002", "Dr. Wang", "Mathematics");
-    _teachers.push_back(t1);
-    _teachers.push_back(t2);
 
-    // 绑定教师与课程
-    bindTeacherToCourse("T001", "CS101");
-    bindTeacherToCourse("T001", "CS201");
-    bindTeacherToCourse("T002", "MATH101");
+
+// 1. 原有逻辑：初始化学生
+    _students.push_back(new Student("2001", "Thomas"));
+    _students.push_back(new Student("2002", "Jerry"));
+    _students.push_back(new Student("2003", "Baker"));
+    _students.push_back(new Student("2004", "Tom"));
+    _students.push_back(new Student("2005", "Musk"));
+
+
+        //同步数据库插入学生信息
+    ps.insertTable("student","2001","Thomas");
+    ps.insertTable("student","2002","Jerry");
+    ps.insertTable("student","2003","Baker");
+    ps.insertTable("student","2004","Tom");
+    ps.insertTable("student","2005","Musk");
+
+
+
+// 2. 原有逻辑：初始化课程
+    _courses.push_back(new Course("101", "C_programs"));
+    _courses.push_back(new Course("201", "Data_Structure"));
+    _courses.push_back(new Course("301", "Advanced_Math"));
+
+    //同步数据库插入课程信息
+    ps.insertTable("course","101","C_programs");
+    ps.insertTable("course","201","Data_Structure");
+    ps.insertTable("course","301","Advanced_Math");
+
+
+
+// 3. 新增逻辑：初始化教师并绑定课程
+    _teachers.push_back(new Teacher("1001", "Professor Lee", "Computer Science"));
+    _teachers.push_back(new Teacher("1002", "Dr.Wang", "Mathematics"));
+
+    //同步数据库插入老师信息
+    ps.insertTeacherTable("teacher","1001","Professor Lee","Computer Science");
+    ps.insertTeacherTable("teacher","1002","Dr.Wang","Mathematics");
+
+
+//4. 绑定教师与课
+    bindTeacherToCourse("1001", "101");
+    bindTeacherToCourse("1001", "201");
+    bindTeacherToCourse("1002", "301");
+
+
+    //同步数据库插入老师教授课程信息
+    ps.insertTable("teachercourse","1001","101");
+    ps.insertTable("teachercourse","1001","201");
+    ps.insertTable("teachercourse","1001","301");
+
+
+
+
 }
 
-// 私有构造函数（原有逻辑保留）
-Registrar::Registrar(){}
+
+
 
 // 查找学生（原有逻辑保留）
 Student *Registrar::findStudentById(const string &id){
@@ -300,7 +348,7 @@ void StudentControl(Psql &ps);//学生登陆
 
 
 //选和退选课程的操作，传输课程名字，映射到对应的列上面去，roll=true为选课，roll=false为退课
-void StudentWithCourse(Psql &ps,const int& Notin,const string& id,bool roll);
+void StudeninsertTable(Psql &ps,const int& Notin,const string& id,bool roll);
 
 
 
@@ -377,7 +425,7 @@ string sqlControlStudentCourseStr(const int& Notin,const string &id,bool roll){
 
 
 //选和退选课程的操作，传输课程名字，映射到对应的列上面去
-void StudentWithCourse(Psql &ps,const int& Notin,const string& id,bool roll){
+void StudeninsertTable(Psql &ps,const int& Notin,const string& id,bool roll){
     const string &controlcourse=sqlControlStudentCourseStr(Notin,id,roll);//获取到特定的列
     if(controlcourse=="")
     {
@@ -445,7 +493,7 @@ void StudentControl(Psql &ps){
                 ps.selectTable(showCourseTableStr.c_str());
                 int notroll;
                 std::cin>>notroll;
-                StudentWithCourse(ps,notroll,tid,false);//退选函数
+                StudeninsertTable(ps,notroll,tid,false);//退选函数
 
                 pressAnyKeyToConntinue();
 
@@ -457,7 +505,7 @@ void StudentControl(Psql &ps){
                 ps.selectTable(showCourseTableStr.c_str());
                 int roll;
                 std::cin>>roll;
-                StudentWithCourse(ps,roll,tid,true);//退选函数
+                StudeninsertTable(ps,roll,tid,true);//退选函数
 
                 pressAnyKeyToConntinue();
 
